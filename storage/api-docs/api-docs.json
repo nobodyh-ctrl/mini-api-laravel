@@ -33,6 +33,43 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "tags": [
+                    "Jugadores"
+                ],
+                "summary": "Crear un jugador",
+                "operationId": "7038e328c92411914d104b547777f510",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JugadorInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Jugador creado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Jugador"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos inválidos"
+                    }
+                }
             }
         },
         "/api/jugadores/{id}": {
@@ -77,6 +114,55 @@
     },
     "components": {
         "schemas": {
+            "JugadorInput": {
+                "required": [
+                    "nombre",
+                    "apellido",
+                    "fecha_nacimiento",
+                    "posicion",
+                    "numero_camiseta",
+                    "nacionalidad"
+                ],
+                "properties": {
+                    "nombre": {
+                        "type": "string",
+                        "example": "Lionel",
+                        "maxLength": 255
+                    },
+                    "apellido": {
+                        "type": "string",
+                        "example": "Messi",
+                        "maxLength": 255
+                    },
+                    "fecha_nacimiento": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1987-06-24"
+                    },
+                    "posicion": {
+                        "type": "string",
+                        "example": "Delantero",
+                        "enum": [
+                            "Arquero",
+                            "Defensor",
+                            "Mediocampista",
+                            "Delantero"
+                        ]
+                    },
+                    "numero_camiseta": {
+                        "type": "integer",
+                        "example": 10,
+                        "maximum": 99,
+                        "minimum": 1
+                    },
+                    "nacionalidad": {
+                        "type": "string",
+                        "example": "Argentina",
+                        "maxLength": 100
+                    }
+                },
+                "type": "object"
+            },
             "Jugador": {
                 "properties": {
                     "id": {

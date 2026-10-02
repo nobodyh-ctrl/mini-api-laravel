@@ -41,7 +41,7 @@ Una **API** (*Application Programming Interface*) es un programa que expone dato
 
 - El **código de estado** HTTP indica el resultado: `200` OK, `201` creado, `404` no encontrado, `422` datos inválidos, `500` error del servidor.
 
-Esta API por ahora solo implementa `GET`.
+Esta API por ahora implementa `GET` (listar y ver un jugador) y `POST` (crear un jugador).
 
 ### Endpoint
 
@@ -151,6 +151,8 @@ mini-api/
 │   │   ├── Controllers/
 │   │   │   ├── Controller.php              ← clase base (lleva la info general de Swagger)
 │   │   │   └── Api/JugadorController.php   ← endpoints de jugadores
+│   │   ├── Requests/
+│   │   │   └── StoreJugadorRequest.php     ← reglas de validación para crear jugadores
 │   │   └── Resources/
 │   │       └── JugadorResource.php         ← define el JSON de salida
 │   ├── Models/
@@ -249,6 +251,7 @@ Queda disponible en `http://localhost:8000`:
 |---|---|
 | `http://localhost:8000/api/jugadores` | Listado de jugadores |
 | `http://localhost:8000/api/jugadores/1` | Un jugador por ID |
+| `POST http://localhost:8000/api/jugadores` | Crear un jugador (ver [Crear un jugador](#crear-un-jugador-post)) |
 | `http://localhost:8000/api/documentation` | Swagger UI |
 | `http://localhost:8000/up` | Health check |
 
@@ -473,7 +476,60 @@ public function index(): AnonymousResourceCollection
 
 **8. Respuesta.** Se convierte a JSON, vuelve a pasar por los middleware de salida y se envía al cliente con código **200**.
 
-> **Tip:** al probar la API desde Postman u otro cliente, mandá el header `Accept: application/json`. Así Laravel devuelve los errores (404, 500, validaciones) en JSON y no como página HTML.
+> **Errores en JSON:** en `bootstrap/app.php` está configurado que toda ruta que empiece con `api/` responda los errores (404, 422, 500) en JSON, aunque el cliente no mande el header `Accept: application/json`.
+
+### Crear un jugador (`POST`)
+
+```http
+POST /api/jugadores
+Content-Type: application/json
+
+{
+  "nombre": "Lionel",
+  "apellido": "Messi",
+  "fecha_nacimiento": "1987-06-24",
+  "posicion": "Delantero",
+  "numero_camiseta": 10,
+  "nacionalidad": "Argentina"
+}
+```
+
+El recorrido es el mismo que en un `GET`, con un paso extra antes del controller: la **validación**.
+
+```php
+public function store(StoreJugadorRequest $request): JsonResponse
+{
+    $jugador = Jugador::create($request->validated());
+
+    return (new JugadorResource($jugador))->response()->setStatusCode(201);
+}
+```
+
+1. Laravel ve que el método recibe un `StoreJugadorRequest` (un **Form Request**: una clase dedicada a validar) y ejecuta sus reglas **antes** de entrar al método.
+2. Si algún dato es inválido, corta y responde **422** con el detalle de cada error. El controller no llega a ejecutarse.
+3. Si todo es válido, `$request->validated()` devuelve solo los campos validados y `Jugador::create()` hace el `INSERT`.
+4. Responde **201 Created** con el jugador creado.
+
+Reglas de `app/Http/Requests/StoreJugadorRequest.php`:
+
+| Campo | Reglas |
+|---|---|
+| `nombre`, `apellido` | Obligatorio, texto, máximo 255 caracteres |
+| `fecha_nacimiento` | Obligatorio, formato `AAAA-MM-DD`, anterior a hoy |
+| `posicion` | Obligatorio, uno de: `Arquero`, `Defensor`, `Mediocampista`, `Delantero` |
+| `numero_camiseta` | Obligatorio, entero entre 1 y 99, no repetido en la tabla |
+| `nacionalidad` | Obligatorio, texto, máximo 100 caracteres |
+
+Ejemplo de respuesta con errores (**422**):
+
+```json
+{
+  "message": "El número de camiseta ya está asignado a otro jugador.",
+  "errors": {
+    "numero_camiseta": ["El número de camiseta ya está asignado a otro jugador."]
+  }
+}
+```
 
 ---
 
@@ -487,6 +543,7 @@ public function index(): AnonymousResourceCollection
 | `JugadorController` | Recibe la request, pide los datos al modelo y devuelve la respuesta |
 | `Jugador` | Modelo: representa la tabla `jugadores`; cada instancia es una fila |
 | `JugadorResource` | Decide qué campos y con qué formato salen en el JSON |
+| `StoreJugadorRequest` | Valida los datos recibidos al crear un jugador |
 | `Controller` | Clase base de todos los controllers; acá solo tiene `#[OA\Info]` de Swagger |
 
 En una frase: **el modelo habla con la base de datos y el resource decide cómo sale el JSON.**

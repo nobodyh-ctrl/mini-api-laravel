@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreJugadorRequest;
 use App\Http\Resources\JugadorResource;
 use App\Models\Jugador;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
@@ -54,5 +56,33 @@ class JugadorController extends Controller
     public function show(Jugador $jugador): JugadorResource
     {
         return new JugadorResource($jugador);
+    }
+
+    #[OA\Post(
+        path: '/api/jugadores',
+        summary: 'Crear un jugador',
+        tags: ['Jugadores'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/JugadorInput')
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Jugador creado',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/Jugador'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: 'Datos inválidos'),
+        ]
+    )]
+    public function store(StoreJugadorRequest $request): JsonResponse
+    {
+        $jugador = Jugador::create($request->validated());
+
+        return (new JugadorResource($jugador))->response()->setStatusCode(201);
     }
 }
