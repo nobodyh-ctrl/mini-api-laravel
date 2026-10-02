@@ -1,0 +1,122 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Mini API - Club",
+        "description": "API REST con la información de los jugadores del club.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/jugadores": {
+            "get": {
+                "tags": [
+                    "Jugadores"
+                ],
+                "summary": "Listar los jugadores del club",
+                "operationId": "dfdc9d92a8b1ea449d2eb6eac1e13f1f",
+                "responses": {
+                    "200": {
+                        "description": "Listado de jugadores",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Jugador"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jugadores/{id}": {
+            "get": {
+                "tags": [
+                    "Jugadores"
+                ],
+                "summary": "Obtener un jugador por ID",
+                "operationId": "26eac9accd0b96d2422ec9ab9e213493",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jugador encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Jugador"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Jugador no encontrado"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Jugador": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Lionel"
+                    },
+                    "apellido": {
+                        "type": "string",
+                        "example": "Messi"
+                    },
+                    "fecha_nacimiento": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1987-06-24"
+                    },
+                    "posicion": {
+                        "type": "string",
+                        "example": "Delantero"
+                    },
+                    "numero_camiseta": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "nacionalidad": {
+                        "type": "string",
+                        "example": "Argentina"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Jugadores",
+            "description": "Jugadores"
+        }
+    ]
+}
