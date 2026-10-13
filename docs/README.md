@@ -100,7 +100,7 @@ Ventajas:
 
 Laravel trae su propio ORM llamado **Eloquent** (ver [sección 8](#8-eloquent-el-orm-de-laravel)).
 
-### Resource (DTO)
+### Resource
 
 Un **DTO** (*Data Transfer Object*) es un objeto que define **qué datos se envían** al cliente, separado de cómo están guardados en la base. En Laravel se llaman **API Resources**.
 
