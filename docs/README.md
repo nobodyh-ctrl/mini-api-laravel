@@ -23,7 +23,7 @@ Este documento explica los conceptos básicos, cómo levantar el proyecto, cómo
 
 ## 1. Conceptos básicos
 
-### API REST
+### API REST FULL
 
 Una **API** (*Application Programming Interface*) es un programa que expone datos o funciones para que otros programas los usen. En vez de mostrar pantallas, responde con datos, en este caso en formato **JSON**.
 
